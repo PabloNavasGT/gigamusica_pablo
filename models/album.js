@@ -11,6 +11,7 @@ const albumSchema = new mongoose.Schema({
     releaseDate: { type: String, required: true },
     artist: { type: String, required: true },
     coverImage: { type: String, required: true },
+    price: { type: Number, required: true, default: 0 }, // <--- Añadir esto
     songs: [songSchema]
 });
 

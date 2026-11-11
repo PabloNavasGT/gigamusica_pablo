@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>MusicStream | Registro</title>
+    <title>GigaMusic | Registro</title>
     <link rel="stylesheet" href="../css/stylemain.css">
     <link rel="stylesheet" href="../css/componentes.css">
 </head>
 <body style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-    <div style="background: #1e293b; padding: 2.5rem; border-radius: 12px; width: 400px; border: 1px solid #334155;">
-        <h2 style="color: white; margin-bottom: 1.5rem; text-align: center;">Crear Cuenta</h2>
+    <div style="background: #1e293b; padding: 2.5rem; border-radius: 12px; width: 420px; border: 1px solid #334155;">
+        <h2 style="color: white; margin-bottom: 1.5rem; text-align: center;">Crear Cuenta GigaMusic</h2>
         <form id="registerForm">
             <div style="margin-bottom: 1rem;">
                 <label style="color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Nombre de usuario</label>
@@ -18,11 +18,15 @@
                 <label style="color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Correo electrónico</label>
                 <input type="email" id="email" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px;">
             </div>
-            <div style="margin-bottom: 1.5rem;">
+            <div style="margin-bottom: 1rem;">
                 <label style="color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Contraseña</label>
                 <input type="password" id="password" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px;">
             </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Registrarse</button>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Código Secreto de Admin (Opcional)</label>
+                <input type="password" id="adminSecret" placeholder="Deja en blanco si eres usuario normal" style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px;">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem; background: linear-gradient(135deg, #059669 0%, #047857 100%);">Registrarse</button>
             <p style="text-align: center; font-size: 0.85rem; color: var(--text-secondary);">¿Ya tienes cuenta? <a href="login.html" style="color: var(--accent);">Inicia sesión</a></p>
         </form>
     </div>
@@ -35,15 +39,16 @@
                 body: JSON.stringify({
                     username: document.getElementById('username').value,
                     email: document.getElementById('email').value,
-                    password: document.getElementById('password').value
+                    password: document.getElementById('password').value,
+                    adminSecret: document.getElementById('adminSecret').value
                 })
             });
             const data = await res.json();
-            if (res.ok) {
-                alert('Registro exitoso. Inicia sesión.');
+            if (res.ok && data.success) {
+                alert(data.message);
                 window.location.href = 'login.html';
             } else {
-                alert(data.error);
+                alert(data.message || 'Error en el registro');
             }
         });
     </script>

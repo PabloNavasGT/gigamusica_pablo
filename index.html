@@ -28,7 +28,8 @@
         <main class="main-content">
             <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                 <input type="text" placeholder="Buscar artista..." style="padding: 10px; background: #1e293b; border: none; color: white; border-radius: 8px; width: 300px;">
-                <button id="openModalBtn" class="btn btn-primary">+ Nuevo Álbum</button>
+                <!-- Botón de admin con ID único, oculto por defecto mediante estilo inline -->
+                <button id="openModalBtn" class="btn btn-primary" style="display: none;">+ Nuevo Álbum</button>
             </header>
 
             <section class="new-releases">
@@ -89,6 +90,16 @@
             localStorage.removeItem('gigamusic_user');
             localStorage.removeItem('gigamusic_cart');
             window.location.href = 'html/login.html';
+        });
+
+        // Mostrar el botón de Admin únicamente si el rol almacenado es 'admin'
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = JSON.parse(localStorage.getItem('gigamusic_user'));
+            const openModalBtn = document.getElementById('openModalBtn');
+            
+            if (currentUser && currentUser.rol === 'admin') {
+                if (openModalBtn) openModalBtn.style.display = 'block';
+            }
         });
     </script>
     <script src="js/index.js"></script>

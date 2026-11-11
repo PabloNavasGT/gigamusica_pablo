@@ -144,40 +144,55 @@
         });
 
         // Enviar compra al Backend (MongoDB) ocultando datos sensibles
-        checkoutForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            let cart = JSON.parse(localStorage.getItem('gigamusic_cart')) || [];
+      checkoutForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    let cart = JSON.parse(localStorage.getItem('gigamusic_cart')) || [];
+    const currentUser = JSON.parse(localStorage.getItem('gigamusic_user'));
 
-            if (cart.length === 0) {
-                alert("No hay álbumes en el carrito para procesar la compra.");
-                return;
-            }
+    if (cart.length === 0) {
+        alert("No hay álbumes en el carrito para procesar la compra.");
+        return;
+    }
 
-            const totalAmount = cart.reduce((sum, item) => sum + (item.price || 0), 0);
-            const billingData = {
-                cardName: document.getElementById('cardName').value,
-                cardNumber: document.getElementById('cardNumber').value, // El backend lo enmascarará
-                address: document.getElementById('billingAddress').value
-            };
+    if (!currentUser || !currentUser.id) {
+        alert("Debes iniciar sesión para completar la compra.");
+        window.location.href = 'login.html';
+        return;
+    }
 
-            try {
-                const res = await fetch('http://localhost:4000/api/orders', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ items: cart, totalAmount, billing: billingData })
-                });
+    const totalAmount = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+    const billingData = {
+        cardName: document.getElementById('cardName').value,
+        cardNumber: document.getElementById('cardNumber').value,
+        address: document.getElementById('billingAddress').value
+    };
 
-                if (res.ok) {
-                    localStorage.removeItem('gigamusic_cart'); // Vaciar carrito tras compra exitosa
-                    window.location.href = 'pagamee.html'; // Redirigir a éxito
-                } else {
-                    alert("Error al procesar la compra en el servidor.");
-                }
-            } catch (err) {
-                console.error("Error de red:", err);
-            }
+    try {
+        // Enviar los datos por HTTP POST al servidor backend
+        const res = await fetch('http://localhost:4000/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                userId: currentUser.id, 
+                items: cart, 
+                totalAmount, 
+                billing: billingData 
+            })
         });
 
+        const data = await res.json();
+
+        if (res.ok) {
+            localStorage.removeItem('gigamusic_cart'); // Limpiar carrito
+            window.location.href = 'pagamee.html';     // Redirigir a éxito
+        } else {
+            alert("Error al procesar la compra: " + (data.error || "Desconocido"));
+        }
+    } catch (err) {
+        console.error("Error de red:", err);
+        alert("No se pudo conectar con el servidor.");
+    }
+});
         document.addEventListener('DOMContentLoaded', loadCart);
     </script>
 </body>

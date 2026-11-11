@@ -1,19 +1,40 @@
+/* ==========================================================================
+   GIGAMUSIC - UI/UX CONSOLA Y SINTETIZADOR DE ALTA GAMA (METÁLICO & AZUL)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600&display=swap');
+
 :root {
-   
-    --bg-main: #101d3b;      
-    --bg-secondary: #1e293b;  
-    --text-primary: #f8fafc;  
-    --text-secondary: #94a3b8; 
-    --accent: #3b82f6;       
-    --accent-hover: #2563eb;
-    --danger: #ef4444;
+    /* Paleta Metálica y Fondo Principal */
+    --bg-main: #0b0d12;
+    --bg-secondary: #141721;
+    --bg-panel: linear-gradient(135deg, #181c25 0%, #0e1117 100%);
+    --panel-border: #283042;
+    --panel-border-light: #484f58;
     
+    /* Metálicos & Reflejos */
+    --metal-silver: #8c95a1;
+    --metal-dark: #1f2430;
+    --metallic-gradient: linear-gradient(145deg, #222836 0%, #11141c 100%);
+    --metallic-shine: linear-gradient(90deg, transparent, rgba(140, 149, 161, 0.1), transparent);
+
+    /* Acentos Azules (Audio Glow) */
+    --accent-blue: #00a8ff;
+    --accent-cyan: #00f3ff;
+    --accent-deep: #0a192f;
+    --accent-hover: #0088d1;
     
+    /* Sistema y Alertas */
+    --text-primary: #f0f6fc;
+    --text-secondary: #8b949e;
+    --danger: #ff5c5c;
+    --success: #00f3a6;
+
+    /* Estructura y Espaciado */
     --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
     --spacing-lg: 2rem;
-   
-    --radius: 8px;
+    --radius: 6px;
 }
 
 * {
@@ -23,11 +44,216 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', sans-serif;
     background-color: var(--bg-main);
     color: var(--text-primary);
     line-height: 1.6;
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(0, 168, 255, 0.05) 0%, transparent 60%),
+        linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 4px;
+}
+
+/* Tipografía Técnica tipo Display de Audio */
+h1, h2, h3, h4, .price-badge, .quick-action, .tech-font {
+    font-family: 'Orbitron', 'Share Tech Mono', monospace;
+    letter-spacing: 0.5px;
 }
 
 a { text-decoration: none; color: inherit; }
 img { max-width: 100%; display: block; }
+
+/* ==========================================================================
+   ESTÉTICA DE HARDWARE / CONSOLA FÍSICA
+   ========================================================================== */
+.card-panel, .sidebar, .album-card, .checkout-forms .card-panel, .order-summary > div {
+    background: var(--bg-panel);
+    border: 1px solid var(--panel-border);
+    box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.08), 
+        0 10px 30px rgba(0, 0, 0, 0.6);
+    position: relative;
+}
+
+/* Tornillos decorativos de hardware en esquinas */
+.card-panel::before, .album-card::before, .sidebar::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 4px;
+    height: 4px;
+    background: var(--metal-silver);
+    border-radius: 50%;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.8);
+}
+
+/* ==========================================================================
+   BOTONES E INTERACCIONES (Efecto Mecánico / Audio Glow)
+   ========================================================================== */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid var(--panel-border-light);
+    background: var(--metallic-gradient);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.btn:hover {
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
+}
+
+/* Efecto de hundimiento físico de consola de mezcla */
+.btn:active {
+    transform: translateY(2px);
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.8);
+    background: #090b10;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0088d1 0%, #0a192f 100%);
+    border-color: var(--accent-blue);
+    color: #fff;
+    text-shadow: 0 0 8px rgba(0, 168, 255, 0.6);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--accent-blue) 0%, #004488 100%);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(0, 168, 255, 0.7);
+}
+
+/* ==========================================================================
+   CATÁLOGO Y TARJETAS DE PISTAS (TRACKS)
+   ========================================================================== */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-left: 4px solid var(--accent-cyan);
+    padding-left: 1rem;
+    background: linear-gradient(90deg, rgba(0, 243, 255, 0.05), transparent);
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.album-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 2rem;
+}
+
+.album-card {
+    border-radius: var(--radius);
+    padding: 12px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.album-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--accent-cyan);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 243, 255, 0.25);
+}
+
+.album-art-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1/1;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    border: 1px solid var(--panel-border);
+}
+
+.album-art-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: contrast(1.05) saturate(1.1);
+}
+
+.price-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(10, 25, 47, 0.85);
+    border: 1px solid var(--accent-cyan);
+    color: var(--accent-cyan);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+}
+
+.quick-action {
+    position: absolute;
+    bottom: -50px;
+    left: 0;
+    width: 100%;
+    background: rgba(10, 25, 47, 0.95);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--accent-blue);
+    color: var(--accent-cyan);
+    text-align: center;
+    padding: 10px 0;
+    transition: 0.3s ease;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+.album-card:hover .quick-action {
+    bottom: 0;
+}
+
+/* ==========================================================================
+   INPUTS Y CONTROLES ESTILO CONSOLA
+   ========================================================================== */
+input[type="text"], input[type="email"], input[type="password"], input[type="date"], input[type="number"] {
+    background: #090c12;
+    border: 1px solid var(--panel-border);
+    color: var(--accent-cyan);
+    padding: 12px;
+    border-radius: var(--radius);
+    font-family: 'Share TechMono', monospace;
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+    background: #0e131f;
+}
+.vu-meter-bar {
+    height: 4px;
+    background: #1f293d;
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+    margin: 1rem 0;
+}
+
+.vu-meter-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 65%;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+    box-shadow: 0 0 8px var(--accent-cyan);
+    animation: pulseGlow 2s infinite alternate;
+}
+
+@keyframes pulseGlow {
+    0% { width: 40%; opacity: 0.7; }
+    100% { width: 85%; opacity: 1; }
+}

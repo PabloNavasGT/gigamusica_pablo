@@ -20,6 +20,7 @@ exports.createOrder = async (req, res) => {
             }
         });
 
+        // Guardar la orden en MongoDB
         await newOrder.save();
 
         // Si hay un usuario logueado, agregar los álbumes a su lista de purchasedAlbums
@@ -30,6 +31,7 @@ exports.createOrder = async (req, res) => {
             });
         }
 
+        // Responder al cliente que todo salió bien
         res.status(201).json({ message: 'Compra registrada con éxito', order: newOrder });
     } catch (error) {
         res.status(400).json({ error: error.message });

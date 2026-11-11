@@ -87,6 +87,12 @@ async function loadAlbumDetails() {
             queueList.innerHTML = '';
             if (album.songs && album.songs.length > 0) {
                 album.songs.forEach((song, index) => {
+                    // Validar que la URL del audio exista y no sea un enlace blob caducado
+                    let safeAudioUrl = song.audioUrl;
+                    if (!safeAudioUrl || safeAudioUrl.startsWith('blob:')) {
+                        safeAudioUrl = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+                    }
+
                     const li = document.createElement('li');
                     li.style.cssText = "padding: 10px; background: #0f172a; border-radius: 6px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;";
                     li.innerHTML = `
@@ -95,7 +101,7 @@ async function loadAlbumDetails() {
                             <div style="font-size: 0.75rem; color: var(--text-secondary);">${song.artist}</div>
                         </div>
                         <audio class="track-audio" controls style="height: 30px; width: 140px;">
-                            <source src="${song.audioUrl}" type="audio/mpeg">
+                            <source src="${safeAudioUrl}" type="audio/mpeg">
                             Tu navegador no soporta audio.
                         </audio>
                     `;

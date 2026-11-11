@@ -23,8 +23,8 @@ exports.getAlbumById = async (req, res) => {
 // Crear un nuevo álbum con su listado de canciones
 exports.createAlbum = async (req, res) => {
     try {
-        const { title, releaseDate, artist, coverImage, songs } = req.body;
-        const newAlbum = new Album({ title, releaseDate, artist, coverImage, songs });
+        const { title, releaseDate, artist, coverImage, price, songs } = req.body;
+        const newAlbum = new Album({ title, releaseDate, artist, coverImage, price, songs });
         await newAlbum.save();
         res.status(201).json({ message: 'Álbum creado exitosamente', album: newAlbum });
     } catch (error) {
