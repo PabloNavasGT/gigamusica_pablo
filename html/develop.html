@@ -1,0 +1,184 @@
+<!-- REEMPLAZA EL CONTENIDO DE develop.html CON ESTA ESTRUCTURA -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicStream | Checkout & Carrito</title>
+    <link rel="stylesheet" href="../css/stylemain.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/componentes.css">
+    <link rel="stylesheet" href="../css/miau.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <h1 style="color: white; margin-bottom: 2rem;">gigamusic</h1>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../index.html">Descubrir</a></li>
+                    <li><a href="#">Mi Biblioteca</a></li>
+                    <li><a href="develop.html" class="active">🛒 Carrito</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2>Finalizar Compra / Carrito</h2>
+                    <p style="color: var(--text-secondary);">Revisa tus álbumes y completa los detalles de pago.</p>
+                </div>
+                <button id="clearCartBtn" class="btn" style="background: #ef4444; color: white; font-size: 0.8rem;">🗑️ Cancelar / Vaciar Carrito</button>
+            </header>
+
+            <div class="checkout-grid">
+                <section class="checkout-forms">
+                    <div class="card-panel" style="background: #1e293b; padding: 2rem; border-radius: 12px;">
+                        <h3>Método de Pago</h3>
+                        <br>
+                        <form id="checkoutForm">
+                            <div class="form-group">
+                                <label>Nombre en la tarjeta</label>
+                                <input type="text" id="cardName" class="form-control" placeholder="Juan Pérez" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Número de tarjeta</label>
+                                <input type="text" id="cardNumber" class="form-control" placeholder="4532 **** **** 4444" required>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label>Expiración</label>
+                                    <input type="text" class="form-control" placeholder="MM/AA" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>CVC</label>
+                                    <input type="password" maxlength="4" class="form-control" placeholder="123" required>
+                                </div>
+                            </div>
+                            <br>
+                            <h3>Dirección de Facturación</h3>
+                            <br>
+                            <div class="form-group">
+                                <label>Dirección</label>
+                                <input type="text" id="billingAddress" class="form-control" placeholder="Zona 4, Ciudad de Guatemala" required>
+                            </div>
+                            <br>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Confirmar y Pagar de forma segura</button>
+                        </form>
+                    </div>
+                </section>
+
+                <aside class="order-summary">
+                    <div style="background: #1e293b; padding: 2rem; border-radius: 12px; border-top: 4px solid var(--accent);">
+                        <h3>Tu Pedido</h3>
+                        <hr style="border: 0; border-top: 1px solid #334155; margin: 1.5rem 0;">
+                        
+                        <!-- Listado dinámico de álbumes en el carrito -->
+                        <div id="cartItemsContainer" style="display: flex; flex-direction: column; gap: 1rem; max-height: 250px; overflow-y: auto;">
+                            <!-- Inyectado por JS -->
+                        </div>
+
+                        <div style="margin-top: 2rem;">
+                            <div style="display: flex; justify-content: space-between; margin-top: 1rem; font-size: 1.2rem; font-weight: bold; color: var(--accent);">
+                                <span>Total</span>
+                                <span id="cartTotal">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const cartItemsContainer = document.getElementById('cartItemsContainer');
+        const cartTotalEl = document.getElementById('cartTotal');
+        const clearCartBtn = document.getElementById('clearCartBtn');
+        const checkoutForm = document.getElementById('checkoutForm');
+
+        function loadCart() {
+            let cart = JSON.parse(localStorage.getItem('gigamusic_cart')) || [];
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.85rem;">Tu carrito está vacío.</p>';
+                cartTotalEl.innerText = '$0.00';
+                return;
+            }
+
+            cart.forEach((album, index) => {
+                total += album.price || 0;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'cart-item';
+                itemDiv.style.cssText = "display: flex; align-items: center; justify-content: space-between; background: #0f172a; padding: 10px; border-radius: 6px;";
+                itemDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="${album.coverImage}" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;">
+                        <div>
+                            <div style="font-weight: bold; font-size: 0.85rem; color: white;">${album.title}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">$${(album.price || 0).toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeAlbum(${index})" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem;">❌</button>
+                `;
+                cartItemsContainer.appendChild(itemDiv);
+            });
+
+            cartTotalEl.innerText = `$${total.toFixed(2)}`;
+        }
+
+        window.removeAlbum = function(index) {
+            let cart = JSON.parse(localStorage.getItem('gigamusic_cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('gigamusic_cart', JSON.stringify(cart));
+            loadCart();
+        };
+
+        clearCartBtn.addEventListener('click', () => {
+            if (confirm("¿Estás seguro de vaciar todo el carrito?")) {
+                localStorage.removeItem('gigamusic_cart');
+                loadCart();
+            }
+        });
+
+        // Enviar compra al Backend (MongoDB) ocultando datos sensibles
+        checkoutForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let cart = JSON.parse(localStorage.getItem('gigamusic_cart')) || [];
+
+            if (cart.length === 0) {
+                alert("No hay álbumes en el carrito para procesar la compra.");
+                return;
+            }
+
+            const totalAmount = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+            const billingData = {
+                cardName: document.getElementById('cardName').value,
+                cardNumber: document.getElementById('cardNumber').value, // El backend lo enmascarará
+                address: document.getElementById('billingAddress').value
+            };
+
+            try {
+                const res = await fetch('http://localhost:4000/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: cart, totalAmount, billing: billingData })
+                });
+
+                if (res.ok) {
+                    localStorage.removeItem('gigamusic_cart'); // Vaciar carrito tras compra exitosa
+                    window.location.href = 'pagamee.html'; // Redirigir a éxito
+                } else {
+                    alert("Error al procesar la compra en el servidor.");
+                }
+            } catch (err) {
+                console.error("Error de red:", err);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', loadCart);
+    </script>
+</body>
+</html>

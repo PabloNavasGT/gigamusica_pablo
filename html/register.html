@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>MusicStream | Registro</title>
+    <link rel="stylesheet" href="../css/stylemain.css">
+    <link rel="stylesheet" href="../css/componentes.css">
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <div style="background: #1e293b; padding: 2.5rem; border-radius: 12px; width: 400px; border: 1px solid #334155;">
+        <h2 style="color: white; margin-bottom: 1.5rem; text-align: center;">Crear Cuenta</h2>
+        <form id="registerForm">
+            <div style="margin-bottom: 1rem;">
+                <label style="color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Nombre de usuario</label>
+                <input type="text" id="username" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px;">
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Correo electrónico</label>
+                <input type="email" id="email" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px;">
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Contraseña</label>
+                <input type="password" id="password" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px;">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Registrarse</button>
+            <p style="text-align: center; font-size: 0.85rem; color: var(--text-secondary);">¿Ya tienes cuenta? <a href="login.html" style="color: var(--accent);">Inicia sesión</a></p>
+        </form>
+    </div>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const res = await fetch('http://localhost:4000/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: document.getElementById('username').value,
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert('Registro exitoso. Inicia sesión.');
+                window.location.href = 'login.html';
+            } else {
+                alert(data.error);
+            }
+        });
+    </script>
+</body>
+</html>
