@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GigaMusic | Mi Biblioteca</title>
+    <link rel="stylesheet" href="../css/stylemain.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/componentes.css">
+    <script src="../js/authGuard.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <h1 style="color: white; margin-bottom: 2rem;">gigamusic</h1>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../index.html">Descubrir</a></li>
+                    <li><a href="library.html" class="active">Mi Biblioteca</a></li>
+                    <li><a href="develop.html">Carrito</a></li>
+                    <li><a href="#" id="logoutBtn">Cerrar Sesión</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header style="margin-bottom: 2rem;">
+                <h2>Mi Biblioteca Musical</h2>
+                <p style="color: var(--text-secondary);">Álbumes que ya adquiriste y puedes reproducir por completo.</p>
+            </header>
+
+            <section class="new-releases">
+                <div class="album-grid" id="libraryGrid"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Script específico para cargar solo los discos comprados del usuario
+        async function loadLibrary() {
+            const grid = document.getElementById('libraryGrid');
+            const currentUser = JSON.parse(localStorage.getItem('gigamusic_user'));
+            
+            if (!currentUser || !currentUser.id) return;
+
+            try {
+                const userRes = await fetch(`http://localhost:4000/api/auth/profile/${currentUser.id}`);
+                const userData = await userRes.json();
+                const purchasedIds = userData.purchasedAlbums ? userData.purchasedAlbums.map(a => (a._id ? a._id.toString() : a.toString())) : [];
+
+                const res = await fetch('http://localhost:4000/api/albums');
+                const albums = await res.json();
+
+                grid.innerHTML = '';
+                const ownedAlbums = albums.filter(album => purchasedIds.includes(album._id.toString()));
+
+                if (ownedAlbums.length === 0) {
+                    grid.innerHTML = '<p style="color: var(--text-secondary);">Aún no tienes álbumes en tu biblioteca. ¡Explora la tienda y adquiere algunos!</p>';
+                    return;
+                }
+
+                ownedAlbums.forEach(album => {
+                    const card = document.createElement('article');
+                    card.className = 'album-card';
+                    card.innerHTML = `
+                        <div class="album-art-container" style="position: relative;">
+                            <a href="now play.html?id=${album._id}">
+                                <img src="${album.coverImage}" alt="${album.title}" style="width:100%; height:100%; object-fit:cover;">
+                            </a>
+                            <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; flex-direction:column; justify-content:center; align-items:center; color:#10b981; font-weight:bold; font-size:1.1rem; gap: 5px; pointer-events:none;"><span>✔ ADQUIRIDO</span></div>
+                        </div>
+                        <h4 style="margin-bottom: 4px; color: white;">${album.title}</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 10px;">${album.artist}</p>
+                        <a href="now play.html?id=${album._id}" class="btn" style="width: 100%; text-align: center; font-size: 0.75rem; padding: 8px; background: var(--accent-blue, #3b82f6); color: white;">Reproducir</a>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (err) {
+                console.error("Error al cargar la biblioteca:", err);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', loadLibrary);
+    </script>
+</body>
+</html>

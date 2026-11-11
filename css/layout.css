@@ -6,27 +6,36 @@
 
 .sidebar {
     background-color: var(--bg-secondary);
-    padding: var(--spacing-md);
+    padding: 2rem 1.5rem;
     order: 2; 
+    border-right: 1px solid var(--panel-border);
+}
+
+.sidebar h1 {
+    font-size: 1.8rem;
+    color: var(--accent-cyan);
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--panel-border);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
 }
 
 .main-content {
     flex: 1;
-    padding: var(--spacing-md);
+    padding: 2rem;
     order: 1;
 }
-
 
 @media (min-width: 768px) {
     .app-container {
         display: grid;
-        grid-template-columns: 250px 1fr; 
+        grid-template-columns: 280px 1fr; /* Ampliamos el panel izquierdo para darle más presencia */
         grid-template-rows: 100vh;
     }
 
     .sidebar {
         order: 0;
-        border-right: 1px solid #334155;
     }
 
     .main-content {
@@ -36,23 +45,41 @@
 
 .nav-links {
     list-style: none;
-    margin-top: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Espaciado más cómodo entre botones */
 }
 
-.nav-links li { margin-bottom: var(--spacing-md); }
-
+/* Estilo de botones de consola para la navegación izquierda */
 .nav-links a {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     color: var(--text-secondary);
-    font-weight: 500;
-    padding: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    font-family: 'Orbitron', 'Share Tech Mono', monospace;
+    padding: 14px 18px;
     border-radius: var(--radius);
-    transition: 0.3s;
+    background: var(--metallic-gradient);
+    border: 1px solid var(--panel-border);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
+/* Efecto Hover y Estado Activo (Audio Glow) tipo Pad de Consola */
 .nav-links a:hover, .nav-links a.active {
-    background-color: var(--accent);
-    color: white;
+    background: linear-gradient(135deg, #0088d1 0%, #0a192f 100%);
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateX(6px);
+}
+
+/* Simulación de botón físico presionado */
+.nav-links a:active {
+    transform: translateX(2px) translateY(2px);
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.8);
 }

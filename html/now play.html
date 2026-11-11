@@ -3,34 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MusicStream | Now Playing</title>
+    <title>GigaMusic | Reproductor</title>
     <link rel="stylesheet" href="../css/stylemain.css">
-    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/player_style.css">
+    <script src="../js/authGuard.js"></script>
 </head>
 <body>
 
-    <div class="immersive-bg"></div>
+    <div class="player-container">
+        <!-- Barra de navegación superior -->
+        <header class="top-nav">
+            <a href="../index.html" class="back-link">← Volver a la Tienda</a>
+        </header>
 
-    <div class="player-layout">
-        <a href="../index.html" class="back-btn">← Volver a la Tienda</a>
+        <ul class="nav-links">
+    <li><a href="../index.html">Descubrir</a></li>
+    <li><a href="library.html">Mi Biblioteca</a></li>
+    <li><a href="develop.html">Carrito</a></li>
+    <li><a href="#" id="logoutBtn">Cerrar Sesión</a></li>
+</ul>
 
-        <main class="player-stage">
-            <div class="album-glow-container" style="text-align: center;">
-                <div class="art-wrapper" style="width: 250px; height: 250px; margin: 0 auto; border-radius: 12px; overflow: hidden;">
-                    <img id="albumCoverImg" src="" alt="Portada" style="width: 100%; height: 100%; object-fit: cover;">
+        <div class="player-grid">
+            <!-- Columna Izquierda: Información y Arte del Álbum -->
+            <aside class="album-info-card">
+                <div class="album-cover-wrapper">
+                    <img id="albumCoverImg" src="" alt="Portada del Álbum">
+                    <span id="albumPriceBadge" class="album-price-tag">$0.00</span>
                 </div>
-                <div class="track-info" style="margin-top: 1.5rem;">
-                    <h1 id="albumTitleMain" class="track-title" style="font-size: 2rem; color: white;">Cargando álbum...</h1>
-                    <h2 id="albumArtistMain" class="artist-name" style="color: var(--text-secondary);">Artista</h2>
-                    <p id="albumReleaseDate" style="font-size: 0.8rem; color: var(--accent); margin-top: 5px;"></p>
-                </div>
-            </div>
-        </main>
 
-        <aside class="playlist-sidebar" style="background: #1e293b; padding: 1.5rem; border-radius: 12px; border: 1px solid #334155;">
-            <h3 style="margin-bottom: 1rem; color: white;">Listado de Canciones</h3>
-            <ul id="queueList" class="queue-list" style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem;"></ul>
-        </aside>
+                <h2 id="albumTitleMain" class="album-meta-title">Cargando...</h2>
+                <h3 id="albumArtistMain" class="album-meta-artist">...</h3>
+                <p id="albumReleaseDate" class="album-meta-date">Lanzamiento: --/--/----</p>
+
+                <div id="playerStage" class="album-action-area">
+                    <!-- Botón de carrito o mensaje de propiedad generado por player.js -->
+                </div>
+            </aside>
+
+            <!-- Columna Derecha: Consola de Pistas / Canciones -->
+            <main class="tracks-panel">
+                <div class="tracks-panel-header">
+                    <h3 class="tech-font" style="color: var(--text-primary);">Listado de Canciones</h3>
+                    <div class="vu-meter-bar" style="width: 120px; margin: 0;"></div>
+                </div>
+
+                <ul id="queueList" class="queue-list-container">
+                    <!-- Las canciones se inyectan dinámicamente -->
+                </ul>
+            </main>
+        </div>
     </div>
 
     <script src="../js/player.js"></script>

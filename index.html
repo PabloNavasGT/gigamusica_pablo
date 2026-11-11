@@ -7,8 +7,7 @@
     <link rel="stylesheet" href="css/stylemain.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/componentes.css">
-    <!-- SCRIPT DE PROTECCIÓN: Bloquea el acceso si no hay sesión -->
-    <script src="js/authGuard.js"></script>
+   <script src="js/authGuard.js"></script>
 </head>
 <body>
 
@@ -17,11 +16,11 @@
             <h1 style="color: white; margin-bottom: 2rem;">gigamusic</h1>
             <nav>
                 <ul class="nav-links">
-                    <li><a href="index.html" class="active">Descubrir</a></li>
-                    <li><a href="html/profile.html">Mi Biblioteca</a></li>
-                    <li><a href="html/develop.html">🛒 Carrito</a></li>
-                    <li><a href="#" id="logoutBtn" style="color: #ef4444; margin-top: 2rem; display: block;">🚪 Cerrar Sesión</a></li>
-                </ul>
+    <li><a href="index.html" class="active">Descubrir</a></li>
+    <li><a href="html/library.html">Mi Biblioteca</a></li>
+    <li><a href="html/develop.html">Carrito</a></li>
+    <li><a href="#" id="logoutBtn">Cerrar Sesión</a></li>
+</ul>
             </nav>
         </aside>
 
@@ -40,9 +39,7 @@
             </section>
         </main>
     </div>
-
-    <!-- MODAL PARA CREAR ÁLBUM Y LISTADO DE CANCIONES -->
-    <div id="albumModal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; overflow-y: auto; padding: 2rem;">
+        <div id="albumModal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; overflow-y: auto; padding: 2rem;">
         <div style="background: #1e293b; padding: 2rem; border-radius: 12px; width: 600px; border: 1px solid #334155; max-height: 90vh; overflow-y: auto;">
             <h3 style="margin-bottom: 1.5rem; color: white;">Registrar Nuevo Álbum</h3>
             <form id="albumForm">
@@ -92,8 +89,7 @@
             window.location.href = 'html/login.html';
         });
 
-        // Mostrar el botón de Admin únicamente si el rol almacenado es 'admin'
-        document.addEventListener('DOMContentLoaded', () => {
+       document.addEventListener('DOMContentLoaded', () => {
             const currentUser = JSON.parse(localStorage.getItem('gigamusic_user'));
             const openModalBtn = document.getElementById('openModalBtn');
             

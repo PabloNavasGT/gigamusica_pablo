@@ -5,14 +5,12 @@ exports.register = async (req, res) => {
     try {
         const { username, email, password, adminSecret } = req.body;
 
-        // Verificar si el correo ya está registrado
-        const existingUser = await User.findOne({ email });
+          const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ success: false, message: 'El correo ya está registrado.' });
         }
 
-        // Lógica de asignación de rol basada en el código secreto del .env
-        let rol = 'user';
+         let rol = 'user';
         if (adminSecret && adminSecret === process.env.ADMIN_SECRET_CODE) {
             rol = 'admin';
         }
@@ -20,7 +18,7 @@ exports.register = async (req, res) => {
         const newUser = new User({
             username,
             email,
-            password, // Nota: en producción recuerda encriptar con bcrypt
+            password, 
             rol
         });
 

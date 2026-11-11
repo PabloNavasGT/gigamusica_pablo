@@ -1,6 +1,4 @@
 const API_URL = 'http://localhost:4000/api/albums';
-
-// Leer parámetro "id" desde la URL (ej: now play.html?id=12345)
 const urlParams = new URLSearchParams(window.location.search);
 const albumId = urlParams.get('id');
 
@@ -9,8 +7,9 @@ async function loadAlbumDetails() {
     const artistEl = document.getElementById('albumArtistMain');
     const dateEl = document.getElementById('albumReleaseDate');
     const coverEl = document.getElementById('albumCoverImg');
+    const priceEl = document.getElementById('albumPriceBadge');
     const queueList = document.getElementById('queueList');
-    const playerStage = document.querySelector('.player-stage');
+    const playerStage = document.getElementById('playerStage') || document.querySelector('.album-action-area');
 
     if (!albumId) {
         if (titleEl) titleEl.innerText = "Ningún álbum seleccionado";
@@ -18,18 +17,16 @@ async function loadAlbumDetails() {
     }
 
     try {
-        // 1. Obtener datos del álbum desde el backend
-        const response = await fetch(`${API_URL}/${albumId}`);
+         const response = await fetch(`${API_URL}/${albumId}`);
         if (!response.ok) throw new Error('No se pudo conectar con la API del álbum');
         const album = await response.json();
 
-        // Rellenar datos principales del álbum
         if (titleEl) titleEl.innerText = album.title;
         if (artistEl) artistEl.innerText = album.artist;
         if (dateEl) dateEl.innerText = `Lanzamiento: ${album.releaseDate}`;
         if (coverEl) coverEl.src = album.coverImage;
+        if (priceEl) priceEl.innerText = `$${(album.price || 0).toFixed(2)}`;
 
-        // 2. Verificar si el usuario actual ya lo compró (de forma segura)
         const currentUser = JSON.parse(localStorage.getItem('gigamusic_user'));
         let isOwner = false;
 
@@ -46,14 +43,13 @@ async function loadAlbumDetails() {
             }
         }
 
-        // 3. Gestionar botón "Agregar al Carrito" o aviso de compra
         if (!isOwner) {
             let cartBtn = document.getElementById('addToCartBtn');
             if (!cartBtn && playerStage) {
                 cartBtn = document.createElement('button');
                 cartBtn.id = 'addToCartBtn';
                 cartBtn.className = 'btn btn-primary';
-                cartBtn.style.cssText = "margin-bottom: 1.5rem; background: var(--accent); color: white; cursor: pointer;";
+                cartBtn.style.cssText = "width: 100%; margin-top: 1rem;";
                 cartBtn.innerText = "🛒 Agregar al Carrito";
                 playerStage.prepend(cartBtn);
             }
@@ -76,38 +72,37 @@ async function loadAlbumDetails() {
         } else {
             if (playerStage) {
                 const notice = document.createElement('div');
-                notice.style.cssText = "background: #10b981; color: white; padding: 8px; border-radius: 6px; margin-bottom: 1.5rem; text-align: center; font-weight: bold;";
-                notice.innerText = "🎉 ¡Ya es tuyo! Disfruta de la música completa.";
+                notice.style.cssText = "background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); color: var(--success); padding: 10px; border-radius: var(--radius); text-align: center; font-weight: bold; font-size: 0.85rem; width: 100%; margin-top: 1rem;";
+                notice.innerText = "🎉 ¡Álbum Adquirido! Disfruta de la música completa.";
                 playerStage.prepend(notice);
             }
         }
 
-        // 4. Renderizar listado de canciones (con o sin límite de 1 minuto)
-        if (queueList) {
+          if (queueList) {
             queueList.innerHTML = '';
             if (album.songs && album.songs.length > 0) {
                 album.songs.forEach((song, index) => {
-                    // Validar que la URL del audio exista y no sea un enlace blob caducado
                     let safeAudioUrl = song.audioUrl;
                     if (!safeAudioUrl || safeAudioUrl.startsWith('blob:')) {
                         safeAudioUrl = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
                     }
 
                     const li = document.createElement('li');
-                    li.style.cssText = "padding: 10px; background: #0f172a; border-radius: 6px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;";
+                    li.className = 'track-item';
                     li.innerHTML = `
-                        <div>
-                            <div style="font-weight: bold; color: white; font-size: 0.9rem;">${index + 1}. ${song.title}</div>
-                            <div style="font-size: 0.75rem; color: var(--text-secondary);">${song.artist}</div>
+                        <div class="track-details">
+                            <span class="track-name">${index + 1}. ${song.title}</span>
+                            <span class="track-artist-sub">${song.artist}</span>
                         </div>
-                        <audio class="track-audio" controls style="height: 30px; width: 140px;">
+                        <audio class="track-audio" controls style="height: 32px; width: 180px;">
                             <source src="${safeAudioUrl}" type="audio/mpeg">
                             Tu navegador no soporta audio.
                         </audio>
                     `;
                     
                     const audioEl = li.querySelector('.track-audio');
-                    // Si no lo ha comprado, limitar reproducción a 60 segundos
+                    audioEl.volume = 1.0; // Forzar volumen al máximo
+
                     if (!isOwner) {
                         audioEl.addEventListener('timeupdate', () => {
                             if (audioEl.currentTime >= 60) {
@@ -121,7 +116,7 @@ async function loadAlbumDetails() {
                     queueList.appendChild(li);
                 });
             } else {
-                queueList.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.85rem;">No hay canciones en este álbum.</p>';
+                queueList.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.85rem; padding: 10px;">No hay canciones en este álbum.</p>';
             }
         }
 

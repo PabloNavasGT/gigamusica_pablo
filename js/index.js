@@ -9,7 +9,6 @@ const albumForm = document.getElementById('albumForm');
 const addSongBtn = document.getElementById('addSongBtn');
 const songsContainer = document.getElementById('songsContainer');
 
-// Control del Modal
 if (openBtn && modal) {
     openBtn.addEventListener('click', () => modal.style.display = 'flex');
 }
@@ -17,8 +16,6 @@ if (openBtn && modal) {
 if (closeBtn && modal) {
     closeBtn.addEventListener('click', () => modal.style.display = 'none');
 }
-
-// Agregar fila para nueva canción con soporte de Drag & Drop y corte a 1 minuto
 if (addSongBtn && songsContainer) {
     addSongBtn.addEventListener('click', () => {
         const songRow = document.createElement('div');
@@ -73,39 +70,23 @@ if (addSongBtn && songsContainer) {
         });
 
         function processMediaFile(file) {
-            fileStatus.innerText = "⏳ Procesando y ajustando archivo a máx. 1 minuto...";
-            const tempUrl = URL.createObjectURL(file);
-            const tempAudio = document.createElement('audio');
-            tempAudio.src = tempUrl;
-
-            tempAudio.addEventListener('loadedmetadata', async () => {
-                const duration = tempAudio.duration;
-
-                if (duration > 60) {
-                    fileStatus.innerText = `⚠️ El archivo duraba ${Math.floor(duration)}s. Cortando a 60 segundos...`;
-                    try {
-                        finalAudioUrl = tempUrl;
-                        audioElement.src = finalAudioUrl;
-                        audioElement.style.display = 'block';
-                        
-                        audioElement.addEventListener('timeupdate', function() {
-                            if (audioElement.currentTime >= 60) {
-                                audioElement.pause();
-                                audioElement.currentTime = 0;
-                            }
-                        });
-                        fileStatus.innerText = "✅ Archivo listo (Limitado a 1:00 min)";
-                    } catch (err) {
-                        fileStatus.innerText = "❌ Error al procesar el archivo.";
-                    }
-                } else {
-                    finalAudioUrl = tempUrl;
-                    audioElement.src = finalAudioUrl;
-                    audioElement.style.display = 'block';
-                    fileStatus.innerText = `✅ Archivo cargado (${Math.floor(duration)}s)`;
-                }
+            fileStatus.innerText = "⏳ Procesando y codificando archivo multimedia...";
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                finalAudioUrl = e.target.result;
+                audioElement.src = finalAudioUrl;
+                audioElement.style.display = 'block';
+                audioElement.volume = 1.0;
+                fileStatus.innerText = "✅ Archivo listo y guardado en base de datos";
                 songRow.dataset.audioUrl = finalAudioUrl;
-            });
+            };
+            
+            reader.onerror = function() {
+                fileStatus.innerText = "❌ Error al leer el archivo.";
+            };
+
+            reader.readAsDataURL(file);
         }
 
         songRow.querySelector('.remove-song-btn').addEventListener('click', () => songRow.remove());
@@ -113,7 +94,7 @@ if (addSongBtn && songsContainer) {
     });
 }
 
-// Enviar nuevo álbum con su listado de canciones al Backend
+// Enviar nuevo álbum al Backend
 if (albumForm) {
     albumForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -156,7 +137,6 @@ if (albumForm) {
     });
 } 
 
-// Cargar álbumes existentes y validar estado "Comprado"
 async function fetchAlbums() {
     if (!albumGrid) return;
     try {
@@ -164,48 +144,105 @@ async function fetchAlbums() {
         let purchasedIds = [];
         
         if (currentUser && currentUser.id) {
-            const userRes = await fetch(`http://localhost:4000/api/auth/profile/${currentUser.id}`);
-            if (userRes.ok) {
-                const userData = await userRes.json();
-                // Mapear asegurando que sean strings para evitar fallos de comparación
-                purchasedIds = userData.purchasedAlbums ? userData.purchasedAlbums.map(a => (a._id ? a._id.toString() : a.toString())) : [];
+            try {
+                const userRes = await fetch(`http://localhost:4000/api/auth/profile/${currentUser.id}`);
+                if (userRes.ok) {
+                    const userData = await userRes.json();
+                    purchasedIds = userData.purchasedAlbums ? userData.purchasedAlbums.map(a => (a._id ? a._id.toString() : a.toString())) : [];
+                }
+            } catch (e) {
+                console.warn("No se pudieron cargar los álbumes comprados.");
             }
         }
 
         const res = await fetch(API_URL);
         const albums = await res.json();
-        albumGrid.innerHTML = '';
         
-        if (albums.length === 0) {
+        if (!Array.isArray(albums) || albums.length === 0) {
             albumGrid.innerHTML = '<p style="color: var(--text-secondary);">No hay álbumes registrados.</p>';
             return;
         }
-        
-        albums.forEach(album => {
-            const albumIdStr = album._id ? album._id.toString() : '';
-            const isPurchased = purchasedIds.includes(albumIdStr);
-            
-            const card = document.createElement('article');
-            card.className = 'album-card';
-            
-            // Si ya está comprado, al hacer clic va directamente a la biblioteca/reproductor completo sin pasar por el carrito
-            card.innerHTML = `
-                <a href="${isPurchased ? 'html/now play.html?id=' + album._id : 'html/now play.html?id=' + album._id}">
+
+        // Función para renderizar el grid según una lista de álbumes (permite filtrar)
+        const renderAlbumList = (listToRender) => {
+            albumGrid.innerHTML = '';
+            if (listToRender.length === 0) {
+                albumGrid.innerHTML = '<p style="color: var(--text-secondary);">No se encontraron álbumes coincidentes.</p>';
+                return;
+            }
+
+            const isAdmin = currentUser && currentUser.rol === 'admin';
+
+            listToRender.forEach(album => {
+                const albumIdStr = album._id ? album._id.toString() : '';
+                const isPurchased = purchasedIds.includes(albumIdStr);
+                
+                const card = document.createElement('article');
+                card.className = 'album-card';
+                
+                card.innerHTML = `
                     <div class="album-art-container" style="position: relative;">
-                        <img src="${album.coverImage}" alt="${album.title}" style="width:100%; height:100%; object-fit:cover;">
+                        <a href="html/now play.html?id=${album._id}">
+                            <img src="${album.coverImage}" alt="${album.title}" style="width:100%; height:100%; object-fit:cover;">
+                        </a>
                         <span class="price-badge">$${(album.price || 0).toFixed(2)}</span>
                         ${isPurchased 
-                            ? '<div style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; flex-direction:column; justify-content:center; align-items:center; color:#10b981; font-weight:bold; font-size:1.1rem; gap: 5px;"><span>✔ COMPRADO</span><span style="font-size:0.75rem; color:white;">Click para escuchar</span></div>' 
-                            : '<div class="quick-action">Escuchar / Comprar</div>'}
+                            ? '<div style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; flex-direction:column; justify-content:center; align-items:center; color:#10b981; font-weight:bold; font-size:1.1rem; gap: 5px; pointer-events:none;"><span>✔ COMPRADO</span></div>' 
+                            : ''}
                     </div>
                     <h4 style="margin-bottom: 4px; color: white;">${album.title}</h4>
-                    <p style="color: var(--text-secondary); font-size: 0.85rem;">${album.artist}</p>
-                </a>
-            `;
-            albumGrid.appendChild(card);
-        });
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 10px;">${album.artist}</p>
+                    
+                    <div style="display: flex; gap: 8px;">
+                        <a href="html/now play.html?id=${album._id}" class="btn" style="flex: 1; text-align: center; font-size: 0.75rem; padding: 8px; background: var(--accent-blue, #3b82f6); color: white;">Escuchar</a>
+                        ${isAdmin ? `<button class="btn delete-album-btn" data-id="${album._id}" style="background: var(--danger, #ef4444); color: white; font-size: 0.75rem; padding: 8px 12px; border: none; cursor: pointer;">🗑️</button>` : ''}
+                    </div>
+                `;
+
+                if (isAdmin) {
+                    const deleteBtn = card.querySelector('.delete-album-btn');
+                    deleteBtn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        if (confirm(`¿Estás seguro de eliminar permanentemente el álbum "${album.title}"?`)) {
+                            try {
+                                const delRes = await fetch(`${API_URL}/${album._id}`, { method: 'DELETE' });
+                                const delData = await delRes.json();
+                                if (delRes.ok && delData.success) {
+                                    alert("Álbum eliminado con éxito.");
+                                    fetchAlbums();
+                                } else {
+                                    alert("Error al eliminar: " + (delData.message || "Desconocido"));
+                                }
+                            } catch (err) {
+                                console.error("Error de red al eliminar:", err);
+                            }
+                        }
+                    });
+                }
+
+                albumGrid.appendChild(card);
+            });
+        };
+
+        // Renderizado inicial completo
+        renderAlbumList(albums);
+
+        // Activar buscador dinámico
+        const searchInput = document.querySelector('input[placeholder*="buscar"], input[type="text"]');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase().trim();
+                const filtered = albums.filter(album => 
+                    album.title.toLowerCase().includes(term) || 
+                    album.artist.toLowerCase().includes(term)
+                );
+                renderAlbumList(filtered);
+            });
+        }
+
     } catch (err) {
         console.error('Error cargando álbumes:', err);
     }
 }
+
 document.addEventListener('DOMContentLoaded', fetchAlbums);
